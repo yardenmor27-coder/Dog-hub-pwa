@@ -1,0 +1,15 @@
+{
+  "name": "dog-haav-pwa",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "generate-vapid-keys": "node -e \"const webpush=require('web-push');const k=webpush.generateVAPIDKeys();console.log('VAPID_PUBLIC_KEY='+k.publicKey);console.log('VAPID_PRIVATE_KEY='+k.privateKey);\""
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "web-push": "^3.6.7"
+  }
+}
