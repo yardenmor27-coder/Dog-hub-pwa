@@ -7,6 +7,7 @@ const state = {
   journal: [],
   config: { pushConfigured: false, vapidPublicKey: null, regions: [] },
   notifOn: false,
+  profile: null,
 };
 
 const $content = document.getElementById("content");
@@ -26,16 +27,24 @@ const JOURNAL_TYPES = {
   weight: { label: "משקל", icon: "⚖️" },
 };
 
-// ---------- API helpers ----------
+function getDeviceId() {
+  let id = localStorage.getItem("dogHaavDeviceId");
+  if (!id) {
+    id = (crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+    localStorage.setItem("dogHaavDeviceId", id);
+  }
+  return id;
+}
+const DEVICE_ID = getDeviceId();
+
 async function api(path, opts) {
   const res = await fetch(path, {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Device-Id": DEVICE_ID },
     ...opts,
   });
   return res.json();
 }
 
-// ---------- Push notifications ----------
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -54,7 +63,7 @@ async function enablePush() {
     return;
   }
   if (!state.config.pushConfigured) {
-    alert("השרת עדיין לא הוגדר לשליחת התראות (חסרים VAPID keys). ראה את קובץ ה-README.");
+    alert("השרת עדיין לא הוגדר לשליחת התראות (חסרים VAPID keys).");
     return;
   }
   const permission = await Notification.requestPermission();
@@ -86,7 +95,40 @@ async function disablePush() {
   render();
 }
 
-// ---------- Rendering ----------
+function renderOnboarding() {
+  $nav.innerHTML = "";
+  $content.innerHTML = `
+    <div style="padding-top:30px;">
+      <div class="eyebrow">ברוכים הבאים</div>
+      <div class="title">בואו נכיר את הכלב שלכם</div>
+      <div class="card">
+        <div style="font-size:11px;color:var(--ink-soft);margin-bottom:4px;">שם הכלב</div>
+        <input type="text" id="ob-name" placeholder="לדוגמה: מקס" />
+        <div style="font-size:11px;color:var(--ink-soft);margin-bottom:4px;">גזע (אופציונלי)</div>
+        <input type="text" id="ob-breed" placeholder="לדוגמה: לברדור" />
+        <div style="font-size:11px;color:var(--ink-soft);margin-bottom:4px;">גיל (אופציונלי)</div>
+        <input type="text" id="ob-age" placeholder="לדוגמה: 3, או גור" />
+        <button class="btn-primary" id="ob-save">שמור והמשך</button>
+        <div id="ob-error" class="note-warn"></div>
+      </div>
+    </div>
+  `;
+  document.getElementById("ob-save").addEventListener("click", async () => {
+    const name = document.getElementById("ob-name").value;
+    const breed = document.getElementById("ob-breed").value;
+    const age = document.getElementById("ob-age").value;
+    const $err = document.getElementById("ob-error");
+    if (!name.trim()) {
+      $err.textContent = "צריך להזין שם לכלב.";
+      return;
+    }
+    $err.textContent = "";
+    const profile = await api("/api/profile", { method: "POST", body: JSON.stringify({ name, breed, age }) });
+    state.profile = profile;
+    render();
+  });
+}
+
 function renderNav() {
   $nav.innerHTML = TABS.map(
     (t) => `
@@ -103,12 +145,23 @@ function renderNav() {
   });
 }
 
+function dogInitial() {
+  return state.profile && state.profile.name ? state.profile.name[0] : "🐶";
+}
+
+function dogSubtitle() {
+  if (!state.profile) return "";
+  const parts = [state.profile.breed, state.profile.age ? "בן " + state.profile.age : ""].filter(Boolean);
+  return parts.join(" · ");
+}
+
 function renderHome() {
+  const name = state.profile ? state.profile.name : "";
   $content.innerHTML = `
     <div class="eyebrow">בוקר טוב</div>
-    <div class="title">מה שלום מקס היום?</div>
+    <div class="title">מה שלום ${name} היום?</div>
     <div class="card">
-      <div style="font-weight:700;">מקס · לברדור, 3</div>
+      <div style="font-weight:700;">${name}${dogSubtitle() ? " · " + dogSubtitle() : ""}</div>
       <div style="font-size:12px;color:var(--ink-soft);">בדוק ביומן מתי החיסון הבא</div>
     </div>
     <div class="eyebrow" style="margin-top:14px;">הכל במקום אחד</div>
@@ -135,7 +188,7 @@ async function renderJournal() {
 
   $content.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-end;">
-      <div><div class="eyebrow">יומן</div><div class="title">הכל על מקס</div></div>
+      <div><div class="eyebrow">יומן</div><div class="title">הכל על ${state.profile ? state.profile.name : ""}</div></div>
       <button class="nav-btn" id="toggle-form" style="background:var(--primary);color:#fff;border-radius:10px;width:34px;height:34px;">+</button>
     </div>
     <div id="journal-form" style="display:none;"></div>
@@ -361,13 +414,14 @@ async function renderFood() {
 }
 
 async function renderProfile() {
+  const name = state.profile ? state.profile.name : "";
   $content.innerHTML = `
     <div class="eyebrow">הפרופיל שלי</div>
-    <div class="title">מקס</div>
+    <div class="title">${name}</div>
     <div class="card" style="text-align:center;padding:28px 16px;">
-      <div style="font-family:'Suez One';font-size:28px;">מ</div>
-      <div style="font-family:'Suez One';font-size:20px;margin-top:8px;">מקס</div>
-      <div style="font-size:12px;color:var(--ink-soft);">לברדור זהוב · בן 3</div>
+      <div style="font-family:'Suez One';font-size:28px;">${dogInitial()}</div>
+      <div style="font-family:'Suez One';font-size:20px;margin-top:8px;">${name}</div>
+      <div style="font-size:12px;color:var(--ink-soft);">${dogSubtitle()}</div>
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -390,6 +444,10 @@ async function renderProfile() {
 }
 
 async function render() {
+  if (!state.profile) {
+    renderOnboarding();
+    return;
+  }
   renderNav();
   if (state.tab === "home") renderHome();
   else if (state.tab === "journal") renderJournal();
@@ -399,15 +457,19 @@ async function render() {
 
 async function init() {
   state.config = await api("/api/config");
-  const settings = await api("/api/settings");
-  state.weight = settings.dogWeight || 20;
-  state.region = settings.region || "מרכז";
+  state.profile = await api("/api/profile");
 
-  if ("serviceWorker" in navigator) {
-    const reg = await registerServiceWorker();
-    if (reg) {
-      const sub = await reg.pushManager.getSubscription();
-      state.notifOn = Boolean(sub);
+  if (state.profile) {
+    const settings = await api("/api/settings");
+    state.weight = settings.dogWeight || 20;
+    state.region = settings.region || "מרכז";
+
+    if ("serviceWorker" in navigator) {
+      const reg = await registerServiceWorker();
+      if (reg) {
+        const sub = await reg.pushManager.getSubscription();
+        state.notifOn = Boolean(sub);
+      }
     }
   }
   render();
