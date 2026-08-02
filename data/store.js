@@ -1,29 +1,36 @@
 // Simple JSON-file persistence — no native modules, so it deploys anywhere.
-// NOTE: on most free hosting tiers the filesystem is ephemeral and resets on
-// redeploy/restart. This is fine for a prototype; swap in a real database
-// (e.g. a free Postgres from Render/Neon) once you're ready to go further.
+// Data is now namespaced per device (per browser/phone), so different
+// people using the app don't see or overwrite each other's dog, journal,
+// or favorites.
 
 const fs = require("fs");
 const path = require("path");
 
 const DB_PATH = path.join(__dirname, "db.json");
 
-const DEFAULT_DB = {
-  journal: [],
-  favorites: [],
-  subscriptions: [],
-  notified: [],
-  settings: { dogWeight: 20, region: "מרכז" },
-};
+const DEFAULT_DB = { profiles: {} };
+
+function emptyProfile() {
+  return {
+    dog: null, // { name, breed, age }
+    journal: [],
+    favorites: [],
+    settings: { dogWeight: 20, region: "מרכז" },
+    subscriptions: [],
+    notified: [],
+  };
+}
 
 function readDB() {
   if (!fs.existsSync(DB_PATH)) {
     fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2));
   }
   try {
-    return JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+    const db = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+    if (!db.profiles) db.profiles = {};
+    return db;
   } catch (e) {
-    return { ...DEFAULT_DB };
+    return { profiles: {} };
   }
 }
 
@@ -31,4 +38,9 @@ function writeDB(data) {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
-module.exports = { readDB, writeDB };
+function getProfile(db, deviceId) {
+  if (!db.profiles[deviceId]) db.profiles[deviceId] = emptyProfile();
+  return db.profiles[deviceId];
+}
+
+module.exports = { readDB, writeDB, getProfile };
