@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Suez+One&family=Heebo:wght@300;400;500;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+
+:root {
+  --bg: #EDE9DE;
+  --ink: #22291F;
+  --ink-soft: #5B6156;
+  --surface: #FBF9F4;
+  --primary: #2F5233;
+  --primary-soft: #3E6B44;
+  --gold: #C98A2B;
+  --gold-soft: #E8C98A;
+  --rust: #A13D2B;
+  --line: #DAD4C4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: 'Heebo', sans-serif;
+  color: var(--ink);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.phone {
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.header {
+  padding: 16px 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Suez One', serif;
+  font-size: 18px;
+}
+
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-soft);
+  font-size: 15px;
+}
+
+.logo .bet { position: relative; display: inline-block; }
+.logo .bet::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--gold);
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 90px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.title {
+  font-family: 'Suez One', serif;
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px 18px;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.action-label { font-weight: 700; font-size: 14px; }
+.action-desc { font-size: 12px; color: var(--ink-soft); }
+
+.pill {
+  font-family: 'Heebo', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+
+.price-row { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+.price-main { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 16px; }
+.price-sub { font-size: 10px; color: var(--ink-soft); }
+.divider-v { width: 1px; height: 28px; background: var(--line); }
+
+.fav-btn { background: none; border: none; cursor: pointer; font-size: 18px; }
+
+.shipping-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-size: 11.5px;
+}
+
+.weight-control { display: flex; align-items: center; gap: 12px; }
+.weight-btn {
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--bg); font-size: 16px; cursor: pointer; color: var(--ink);
+}
+.weight-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 17px; min-width: 54px; text-align: center; }
+
+.btn-primary {
+  width: 100%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-dark { background: var(--ink); }
+
+input[type="date"], input[type="text"] {
+  width: 100%;
+  font-family: 'Heebo', sans-serif;
+  font-size: 13px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.timeline { position: relative; padding-right: 6px; }
+.timeline-line {
+  position: absolute; right: 15px; top: 6px; bottom: 6px; width: 2px; background: var(--line);
+}
+.timeline-item { display: flex; gap: 12px; position: relative; margin-bottom: 14px; }
+.timeline-dot {
+  width: 30px; height: 30px; border-radius: 999px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; z-index: 1; color: #fff; font-size: 14px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 9px 4px calc(9px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  color: var(--ink-soft);
+  font-family: 'Heebo', sans-serif;
+  font-size: 9.5px;
+}
+
+.nav-btn.active { color: var(--primary); font-weight: 700; }
+.nav-icon { font-size: 18px; }
+
+.switch {
+  width: 44px; height: 25px; border-radius: 999px; border: none;
+  background: var(--line); position: relative; cursor: pointer; flex-shrink: 0;
+}
+.switch.on { background: var(--primary); }
+.switch .knob {
+  position: absolute; top: 3px; right: 3px; width: 19px; height: 19px;
+  border-radius: 999px; background: #fff; transition: right 0.15s;
+}
+.switch.on .knob { right: 22px; }
+
+.note-small { font-size: 10.5px; color: var(--ink-soft); line-height: 1.6; margin-top: 8px; }
+.note-warn { font-size: 10.5px; color: var(--rust); margin-top: 8px; }
