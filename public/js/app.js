@@ -391,27 +391,24 @@ async function renderFood() {
   );
 
   document.getElementById("ai-ask").addEventListener("click", async () => {
-    const dogSize = document.getElementById("ai-size").value;
-    const priorities = document.getElementById("ai-priorities").value;
-    const $result = document.getElementById("ai-result");
-    $result.innerHTML = `<div class="note-small">חושב...</div>`;
-    try {
-      const res = await api("/api/ai-recommend", {
-        method: "POST",
-        body: JSON.stringify({ weight: state.weight, dogSize, priorities }),
-      });
-      if (res.error) {
-        $result.innerHTML = `<div class="note-warn">${res.error}</div>`;
-      } else {
-        $result.innerHTML = `<div class="card" style="margin-top:10px;white-space:pre-wrap;font-size:13px;">${res.recommendation}</div>`;
-      }
-    } catch (e) {
-      $result.innerHTML = `<div class="note-warn">שגיאה בתקשורת עם השרת.</div>`;
+  const dogSize = document.getElementById("ai-size").value;
+  const priorities = document.getElementById("ai-priorities").value;
+  const $result = document.getElementById("ai-result");
+  $result.innerHTML = '<div class="note-small">חושב...</div>';
+  try {
+    const promptText = `המלץ לי על מזון לכלב בגודל ${dogSize}. העדפות: ${priorities}`;
+    const res = await askAI(promptText);
+    if (res.error) {
+      $result.innerHTML = `<div class="note-warn">${res.error}</div>`;
+    } else {
+      const output = res[0]?.generated_text || JSON.stringify(res);
+      $result.innerHTML = `<div class="card" style="margin-top:10px;white-space:pre-wrap;font-size:13px;">${output}</div>`;
     }
-  });
-
-  renderList();
-}
+  } catch (e) {
+    $result.innerHTML = '<div class="note-warn">שגיאה בתקשורת עם השרת</div>';
+  }
+});
+  
 
 async function renderProfile() {
   const name = state.profile ? state.profile.name : "";
