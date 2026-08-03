@@ -213,6 +213,30 @@ async function checkReminders() {
 
 setInterval(checkReminders, 5 * 60 * 1000);
 checkReminders();
+// AI Endpoint (Hugging Face)
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/moonshotai/Kimi-K3",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.HF_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ inputs: prompt }),
+      }
+    );
+
+    const result = await response.json();
+    res.json(result);
+  } catch (error) {
+    console.error("AI Error:", error);
+    res.status(500).json({ error: "שגיאה בחיבור ל-AI" });
+  }
+});
 
 app.listen(PORT, () => {
   console.log("דוג.האב server running on port " + PORT);
